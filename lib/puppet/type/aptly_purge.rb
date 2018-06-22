@@ -38,6 +38,8 @@ EOD
     outfile = @parameters[:debug] ? "/dev/stdout" : "/dev/null"
     package = Puppet::Type.type(:package)
 
+    timing_info = {}
+    timing_info[:start] = Time.now.to_f
 
     # Using the RAL, divide the world into Catalog packages and not-Catalog
     # packages.
@@ -149,6 +151,10 @@ EOS
       unholds = []
     end
     Puppet.debug "unholds: #{unholds.map(&:name)}"
+
+    timing_info[:end] = Time.now.to_f
+
+    Puppet.debug "aptly_purge packages calculated in %{seconds} seconds" % { seconds: "%0.2f" % (timing_info[:end] - timing_info[:start]) } if Puppet[:evaltrace]
 
     holds + unholds + removes
   end
